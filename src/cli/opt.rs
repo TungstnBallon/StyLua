@@ -42,6 +42,10 @@ pub struct Opt {
     #[structopt(short, long)]
     pub check: bool,
 
+    /// Start the language server
+    #[structopt(short, long)]
+    pub lsp: bool,
+
     /// Configures the diff output when using 'check' mode.
     ///
     /// This option is ignored if 'check' is not enabled.

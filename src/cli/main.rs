@@ -13,12 +13,14 @@ use std::sync::Arc;
 use std::time::Instant;
 use thiserror::Error;
 use threadpool::ThreadPool;
+use tokio::runtime::Runtime;
 
 use stylua_lib::{format_code, Config, OutputVerification, Range};
 
 use crate::config::find_ignore_file_path;
 
 mod config;
+mod lsp;
 mod opt;
 mod output_diff;
 
@@ -607,15 +609,20 @@ fn main() {
         })
         .init();
 
-    let exit_code = match format(opt) {
-        Ok(code) => code,
-        Err(err) => {
-            error!("{:#}", err);
-            2
-        }
-    };
+    if opt.lsp {
+        let rt = Runtime::new().expect("Can create runtime");
+        let () = rt.block_on(lsp::start(opt));
+    } else {
+        let exit_code = match format(opt) {
+            Ok(code) => code,
+            Err(err) => {
+                error!("{:#}", err);
+                2
+            }
+        };
 
-    std::process::exit(exit_code);
+        std::process::exit(exit_code);
+    }
 }
 
 #[cfg(test)]
