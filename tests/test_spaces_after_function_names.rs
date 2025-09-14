@@ -4,7 +4,7 @@ fn format(input: &str, space_after_function_names: SpaceAfterFunctionNames) -> S
     format_code(
         input,
         Config {
-            space_after_function_names,
+            space_after_function_names: Some(space_after_function_names),
             ..Config::default()
         },
         None,

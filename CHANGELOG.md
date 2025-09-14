@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- If `indent_width` had not been set, either through stylua or .editorconfig, language server mode will use the editor's setting
+- If `indent_type` had not been set, either through stylua or .editorconfig, language server mode will use the editor's setting
+- `Config` contains optional fields. Use the new getter functions to retrieve a config value or its default.
 - In language server mode, compute the difference between the unformatted and formatted document and only respond with the changes.
 - Include `serverInfo` in the language server's [`InitializeResponse`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#initializeResult)
 

@@ -5,7 +5,7 @@ fn format(input: &str) -> String {
         input,
         #[allow(deprecated)]
         Config {
-            no_call_parentheses: true,
+            no_call_parentheses: Some(true),
             ..Config::default()
         },
         None,

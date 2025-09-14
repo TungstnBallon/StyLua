@@ -250,34 +250,34 @@ fn load_overrides(config: Config, opt: &Opt) -> Config {
     let mut new_config = config;
 
     if let Some(syntax) = opt.format_opts.syntax {
-        new_config.syntax = syntax.into();
+        new_config.syntax = Some(syntax.into());
     };
     if let Some(column_width) = opt.format_opts.column_width {
-        new_config.column_width = column_width;
+        new_config.column_width = Some(column_width);
     };
     if let Some(line_endings) = opt.format_opts.line_endings {
-        new_config.line_endings = line_endings.into();
+        new_config.line_endings = Some(line_endings.into());
     };
     if let Some(indent_type) = opt.format_opts.indent_type {
-        new_config.indent_type = indent_type.into();
+        new_config.indent_type = Some(indent_type.into());
     };
     if let Some(indent_width) = opt.format_opts.indent_width {
-        new_config.indent_width = indent_width;
+        new_config.indent_width = Some(indent_width);
     };
     if let Some(quote_style) = opt.format_opts.quote_style {
-        new_config.quote_style = quote_style.into();
+        new_config.quote_style = Some(quote_style.into());
     };
     if let Some(call_parentheses) = opt.format_opts.call_parentheses {
-        new_config.call_parentheses = call_parentheses.into();
+        new_config.call_parentheses = Some(call_parentheses.into());
     };
     if let Some(space_after_function_names) = opt.format_opts.space_after_function_names {
-        new_config.space_after_function_names = space_after_function_names.into();
+        new_config.space_after_function_names = Some(space_after_function_names.into());
     };
     if let Some(collapse_simple_statement) = opt.format_opts.collapse_simple_statement {
-        new_config.collapse_simple_statement = collapse_simple_statement.into();
+        new_config.collapse_simple_statement = Some(collapse_simple_statement.into());
     }
     if opt.format_opts.sort_requires {
-        new_config.sort_requires = SortRequiresConfig { enabled: true }
+        new_config.sort_requires = Some(SortRequiresConfig { enabled: true })
     }
 
     new_config
@@ -294,7 +294,7 @@ mod tests {
         let override_opt = Opt::parse_from(vec!["BINARY_NAME", "--syntax", "Lua51"]);
         let default_config = Config::new();
         let config = load_overrides(default_config, &override_opt);
-        assert_eq!(config.syntax, LuaVersion::Lua51);
+        assert_eq!(config.syntax, Some(LuaVersion::Lua51));
     }
 
     #[test]
@@ -302,7 +302,7 @@ mod tests {
         let override_opt = Opt::parse_from(vec!["BINARY_NAME", "--column-width", "80"]);
         let default_config = Config::new();
         let config = load_overrides(default_config, &override_opt);
-        assert_eq!(config.column_width, 80);
+        assert_eq!(config.column_width, Some(80));
     }
 
     #[test]
@@ -310,7 +310,7 @@ mod tests {
         let override_opt = Opt::parse_from(vec!["BINARY_NAME", "--line-endings", "Windows"]);
         let default_config = Config::new();
         let config = load_overrides(default_config, &override_opt);
-        assert_eq!(config.line_endings, LineEndings::Windows);
+        assert_eq!(config.line_endings, Some(LineEndings::Windows));
     }
 
     #[test]
@@ -318,7 +318,7 @@ mod tests {
         let override_opt = Opt::parse_from(vec!["BINARY_NAME", "--indent-type", "Spaces"]);
         let default_config = Config::new();
         let config = load_overrides(default_config, &override_opt);
-        assert_eq!(config.indent_type, IndentType::Spaces);
+        assert_eq!(config.indent_type, Some(IndentType::Spaces));
     }
 
     #[test]
@@ -326,7 +326,7 @@ mod tests {
         let override_opt = Opt::parse_from(vec!["BINARY_NAME", "--indent-width", "2"]);
         let default_config = Config::new();
         let config = load_overrides(default_config, &override_opt);
-        assert_eq!(config.indent_width, 2);
+        assert_eq!(config.indent_width, Some(2));
     }
 
     #[test]
@@ -334,7 +334,7 @@ mod tests {
         let override_opt = Opt::parse_from(vec!["BINARY_NAME", "--quote-style", "ForceSingle"]);
         let default_config = Config::new();
         let config = load_overrides(default_config, &override_opt);
-        assert_eq!(config.quote_style, QuoteStyle::ForceSingle);
+        assert_eq!(config.quote_style, Some(QuoteStyle::ForceSingle));
     }
 
     #[test]
@@ -342,6 +342,6 @@ mod tests {
         let override_opt = Opt::parse_from(vec!["BINARY_NAME", "--call-parentheses", "None"]);
         let default_config = Config::new();
         let config = load_overrides(default_config, &override_opt);
-        assert_eq!(config.call_parentheses, CallParenType::None);
+        assert_eq!(config.call_parentheses, Some(CallParenType::None));
     }
 }

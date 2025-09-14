@@ -5,7 +5,7 @@ use stylua_lib::{
 
 fn format(input: &str, syntax: LuaVersion) -> String {
     let config = Config {
-        syntax,
+        syntax: Some(syntax),
         ..Config::default()
     };
     format_code(input, config, None, OutputVerification::None).unwrap()
@@ -106,7 +106,7 @@ fn test_collapse_single_statement() {
         insta::assert_snapshot!(format_code(
             &contents,
             Config {
-                collapse_simple_statement: CollapseSimpleStatement::Always,
+                collapse_simple_statement: Some(CollapseSimpleStatement::Always),
                 ..Config::default()
             },
             None,
@@ -123,7 +123,7 @@ fn test_preserve_block_newline_gaps() {
         insta::assert_snapshot!(format_code(
             &contents,
             Config {
-                block_newline_gaps: BlockNewlineGaps::Preserve,
+                block_newline_gaps: Some(BlockNewlineGaps::Preserve),
                 ..Config::default()
             },
             None,
@@ -145,8 +145,8 @@ fn test_collapse_single_statement_lua_52() {
             end
             "###,
             Config {
-                syntax: LuaVersion::Lua52,
-                collapse_simple_statement: CollapseSimpleStatement::Always,
+                syntax: Some(LuaVersion::Lua52),
+                collapse_simple_statement: Some(CollapseSimpleStatement::Always),
                 ..Config::default()
             },
             None,
@@ -166,7 +166,7 @@ fn test_sort_requires() {
         insta::assert_snapshot!(format_code(
             &contents,
             Config {
-                sort_requires: SortRequiresConfig { enabled: true },
+                sort_requires: Some(SortRequiresConfig { enabled: true }),
                 ..Config::default()
             },
             None,

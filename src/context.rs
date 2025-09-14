@@ -129,38 +129,44 @@ impl Context {
 
     #[allow(deprecated)]
     pub fn should_omit_string_parens(&self) -> bool {
-        self.config().no_call_parentheses
-            || self.config().call_parentheses == CallParenType::None
-            || self.config().call_parentheses == CallParenType::NoSingleString
+        self.config().no_call_parentheses()
+            || self.config().call_parentheses() == CallParenType::None
+            || self.config().call_parentheses() == CallParenType::NoSingleString
     }
 
     #[allow(deprecated)]
     pub fn should_omit_table_parens(&self) -> bool {
-        self.config().no_call_parentheses
-            || self.config().call_parentheses == CallParenType::None
-            || self.config().call_parentheses == CallParenType::NoSingleTable
+        self.config().no_call_parentheses()
+            || self.config().call_parentheses() == CallParenType::None
+            || self.config().call_parentheses() == CallParenType::NoSingleTable
     }
 
     pub fn should_collapse_simple_functions(&self) -> bool {
         matches!(
-            self.config().collapse_simple_statement,
+            self.config().collapse_simple_statement(),
             CollapseSimpleStatement::FunctionOnly | CollapseSimpleStatement::Always
         )
     }
 
     pub fn should_collapse_simple_conditionals(&self) -> bool {
         matches!(
-            self.config().collapse_simple_statement,
+            self.config().collapse_simple_statement(),
             CollapseSimpleStatement::ConditionalOnly | CollapseSimpleStatement::Always
         )
     }
 
     pub fn should_preserve_leading_block_newline_gaps(&self) -> bool {
-        matches!(self.config().block_newline_gaps, BlockNewlineGaps::Preserve)
+        matches!(
+            self.config().block_newline_gaps(),
+            BlockNewlineGaps::Preserve
+        )
     }
 
     pub fn should_preserve_trailing_block_newline_gaps(&self) -> bool {
-        matches!(self.config().block_newline_gaps, BlockNewlineGaps::Preserve)
+        matches!(
+            self.config().block_newline_gaps(),
+            BlockNewlineGaps::Preserve
+        )
     }
 }
 
@@ -181,17 +187,17 @@ pub fn create_indent_trivia(ctx: &Context, shape: Shape) -> Token {
 /// Creates indent trivia without including `ctx.indent_level()`.
 /// You should pass the exact amount of indent you require to this function
 pub fn create_plain_indent_trivia(ctx: &Context, indent_level: usize) -> Token {
-    match ctx.config().indent_type {
+    match ctx.config().indent_type() {
         IndentType::Tabs => Token::new(TokenType::tabs(indent_level)),
-        IndentType::Spaces => {
-            Token::new(TokenType::spaces(indent_level * ctx.config().indent_width))
-        }
+        IndentType::Spaces => Token::new(TokenType::spaces(
+            indent_level * ctx.config().indent_width(),
+        )),
     }
 }
 
 /// Creates a new Token containing whitespace used after function declarations
 pub fn create_function_definition_trivia(ctx: &Context) -> Token {
-    match ctx.config().space_after_function_names {
+    match ctx.config().space_after_function_names() {
         SpaceAfterFunctionNames::Always | SpaceAfterFunctionNames::Definitions => {
             Token::new(TokenType::spaces(1))
         }
@@ -203,7 +209,7 @@ pub fn create_function_definition_trivia(ctx: &Context) -> Token {
 
 /// Creates a new Token containing whitespace used after function calls
 pub fn create_function_call_trivia(ctx: &Context) -> Token {
-    match ctx.config().space_after_function_names {
+    match ctx.config().space_after_function_names() {
         SpaceAfterFunctionNames::Always | SpaceAfterFunctionNames::Calls => {
             Token::new(TokenType::spaces(1))
         }
@@ -216,6 +222,6 @@ pub fn create_function_call_trivia(ctx: &Context) -> Token {
 /// Creates a new Token containing new line whitespace, used for trivia
 pub fn create_newline_trivia(ctx: &Context) -> Token {
     Token::new(TokenType::Whitespace {
-        characters: line_ending_character(ctx.config().line_endings).into(),
+        characters: line_ending_character(ctx.config().line_endings()).into(),
     })
 }

@@ -4,7 +4,7 @@ fn format(input: &str, quote_style: QuoteStyle) -> String {
     format_code(
         input,
         Config {
-            quote_style,
+            quote_style: Some(quote_style),
             ..Config::default()
         },
         None,

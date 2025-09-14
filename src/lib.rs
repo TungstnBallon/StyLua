@@ -229,31 +229,66 @@ pub enum SpaceAfterFunctionNames {
 }
 
 /// The configuration to use when formatting.
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug, Default, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 #[cfg_attr(all(target_arch = "wasm32", feature = "wasm-bindgen"), wasm_bindgen)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 pub struct Config {
+    pub syntax: Option<LuaVersion>,
+    pub column_width: Option<usize>,
+    pub line_endings: Option<LineEndings>,
+    pub indent_type: Option<IndentType>,
+    pub indent_width: Option<usize>,
+    pub quote_style: Option<QuoteStyle>,
+    pub no_call_parentheses: Option<bool>,
+    pub call_parentheses: Option<CallParenType>,
+    pub collapse_simple_statement: Option<CollapseSimpleStatement>,
+    pub block_newline_gaps: Option<BlockNewlineGaps>,
+    pub sort_requires: Option<SortRequiresConfig>,
+    pub space_after_function_names: Option<SpaceAfterFunctionNames>,
+}
+
+#[cfg_attr(all(target_arch = "wasm32", feature = "wasm-bindgen"), wasm_bindgen)]
+impl Config {
+    /// Creates a new Config with no options set
+    pub fn new() -> Self {
+        Config::default()
+    }
+
     /// The type of Lua syntax to parse.
-    pub syntax: LuaVersion,
+    pub fn syntax(&self) -> LuaVersion {
+        self.syntax.unwrap_or_default()
+    }
     /// The approximate line length to use when printing the code.
     /// This is used as a guide to determine when to wrap lines, but note
     /// that this is not a hard upper bound.
-    pub column_width: usize,
+    pub fn column_width(&self) -> usize {
+        self.column_width.unwrap_or(120)
+    }
     /// The type of line endings to use.
-    pub line_endings: LineEndings,
+    pub fn line_endings(&self) -> LineEndings {
+        self.line_endings.unwrap_or_default()
+    }
     /// The type of indents to use.
-    pub indent_type: IndentType,
+    pub fn indent_type(&self) -> IndentType {
+        self.indent_type.unwrap_or_default()
+    }
     /// The width of a single indentation level.
     /// If `indent_type` is set to [`IndentType::Spaces`], then this is the number of spaces to use.
     /// If `indent_type` is set to [`IndentType::Tabs`], then this is used as a heuristic to guide when to wrap lines.
-    pub indent_width: usize,
+    pub fn indent_width(&self) -> usize {
+        self.indent_width.unwrap_or(4)
+    }
     /// The style of quotes to use in string literals.
-    pub quote_style: QuoteStyle,
+    pub fn quote_style(&self) -> QuoteStyle {
+        self.quote_style.unwrap_or_default()
+    }
     /// Whether to omit parentheses around function calls which take a single string literal or table.
     /// This is added for adoption reasons only, and is not recommended for new work.
     #[deprecated(note = "use `call_parentheses` instead")]
-    pub no_call_parentheses: bool,
+    pub fn no_call_parentheses(&self) -> bool {
+        self.no_call_parentheses.unwrap_or(false)
+    }
     /// When to use call parentheses.
     /// if call_parentheses is set to [`CallParenType::Always`] call parentheses is always applied.
     /// if call_parentheses is set to [`CallParenType::NoSingleTable`] call parentheses is omitted when
@@ -262,50 +297,32 @@ pub struct Config {
     /// function is called with only one table argument.
     /// if call_parentheses is set to [`CallParenType::None`] call parentheses is omitted when
     /// function is called with only one table or string argument (same as no_call_parentheses).
-    pub call_parentheses: CallParenType,
+    pub fn call_parentheses(&self) -> CallParenType {
+        self.call_parentheses.unwrap_or_default()
+    }
     /// Whether we should collapse simple structures like functions or guard statements
     /// if set to [`CollapseSimpleStatement::None`] structures are never collapsed.
     /// if set to [`CollapseSimpleStatement::FunctionOnly`] then simple functions (i.e., functions with a single laststmt) can be collapsed
-    pub collapse_simple_statement: CollapseSimpleStatement,
+    pub fn collapse_simple_statement(&self) -> CollapseSimpleStatement {
+        self.collapse_simple_statement.unwrap_or_default()
+    }
     /// Whether we should allow blocks to preserve leading and trailing newline gaps.
     /// if set to [`BlockNewlineGaps::Never`] then newline gaps are never allowed at the start or end of blocks.
     /// if set to [`BlockNewlineGaps::Preserve`] then newline gaps are preserved at the start and end of blocks.
-    pub block_newline_gaps: BlockNewlineGaps,
+    pub fn block_newline_gaps(&self) -> BlockNewlineGaps {
+        self.block_newline_gaps.unwrap_or_default()
+    }
     /// Configuration for the sort requires codemod
-    pub sort_requires: SortRequiresConfig,
+    pub fn sort_requires(&self) -> SortRequiresConfig {
+        self.sort_requires.unwrap_or_default()
+    }
     /// Whether we should include a space between the function name and arguments.
     /// * if space_after_function_names is set to [`SpaceAfterFunctionNames::Never`] a space is never used.
     /// * if space_after_function_names is set to [`SpaceAfterFunctionNames::Definitions`] a space is used only for definitions.
     /// * if space_after_function_names is set to [`SpaceAfterFunctionNames::Calls`] a space is used only for calls.
     /// * if space_after_function_names is set to [`SpaceAfterFunctionNames::Always`] a space is used for both definitions and calls.
-    pub space_after_function_names: SpaceAfterFunctionNames,
-}
-
-#[cfg_attr(all(target_arch = "wasm32", feature = "wasm-bindgen"), wasm_bindgen)]
-impl Config {
-    /// Creates a new Config with the default values
-    pub fn new() -> Self {
-        Config::default()
-    }
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        #[allow(deprecated)]
-        Self {
-            syntax: LuaVersion::default(),
-            column_width: 120,
-            line_endings: LineEndings::default(),
-            indent_type: IndentType::default(),
-            indent_width: 4,
-            quote_style: QuoteStyle::default(),
-            no_call_parentheses: false,
-            call_parentheses: CallParenType::default(),
-            collapse_simple_statement: CollapseSimpleStatement::default(),
-            sort_requires: SortRequiresConfig::default(),
-            space_after_function_names: SpaceAfterFunctionNames::default(),
-            block_newline_gaps: BlockNewlineGaps::default(),
-        }
+    pub fn space_after_function_names(&self) -> SpaceAfterFunctionNames {
+        self.space_after_function_names.unwrap_or_default()
     }
 }
 
@@ -419,7 +436,7 @@ pub fn format_ast(
     let ctx = Context::new(config, range);
 
     // Perform require sorting beforehand if necessary
-    let input_ast = match config.sort_requires.enabled {
+    let input_ast = match config.sort_requires().enabled {
         true => sort_requires::sort_requires(&ctx, input_ast),
         false => input_ast,
     };
@@ -431,7 +448,7 @@ pub fn format_ast(
     if let Some(input_ast) = input_ast_for_verification {
         let output = ast.to_string();
         let reparsed_output =
-            match full_moon::parse_fallible(&output, config.syntax.into()).into_result() {
+            match full_moon::parse_fallible(&output, config.syntax().into()).into_result() {
                 Ok(ast) => ast,
                 Err(error) => {
                     return Err(Error::VerificationAstError(error));
@@ -455,7 +472,7 @@ pub fn format_code(
     range: Option<Range>,
     verify_output: OutputVerification,
 ) -> Result<String, Error> {
-    let input_ast = match full_moon::parse_fallible(code, config.syntax.into()).into_result() {
+    let input_ast = match full_moon::parse_fallible(code, config.syntax().into()).into_result() {
         Ok(ast) => ast,
         Err(error) => {
             return Err(Error::ParseError(error));

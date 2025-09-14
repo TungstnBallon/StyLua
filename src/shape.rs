@@ -24,7 +24,7 @@ impl Indent {
         Self {
             block_indent: 0,
             additional_indent: 0,
-            indent_width: ctx.config().indent_width,
+            indent_width: ctx.config().indent_width(),
         }
     }
 
@@ -117,7 +117,7 @@ impl Shape {
         Self {
             indent: Indent::new(ctx),
             offset: 0,
-            column_width: ctx.config().column_width,
+            column_width: ctx.config().column_width(),
             simple_heuristics: false,
         }
     }

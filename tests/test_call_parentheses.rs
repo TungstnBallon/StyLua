@@ -4,7 +4,7 @@ fn format(call_parentheses: CallParenType, input: &str) -> String {
     format_code(
         input,
         Config {
-            call_parentheses,
+            call_parentheses: Some(call_parentheses),
             ..Config::default()
         },
         None,

@@ -91,88 +91,90 @@ property_choice! {
 fn load(mut config: Config, properties: &Properties) -> Config {
     if let Ok(end_of_line) = properties.get::<EndOfLine>() {
         match end_of_line {
-            EndOfLine::Cr | EndOfLine::Lf => config.line_endings = LineEndings::Unix,
-            EndOfLine::CrLf => config.line_endings = LineEndings::Windows,
+            EndOfLine::Cr | EndOfLine::Lf => config.line_endings = Some(LineEndings::Unix),
+            EndOfLine::CrLf => config.line_endings = Some(LineEndings::Windows),
         }
     }
     if let Ok(indent_size) = properties.get::<IndentSize>() {
         match indent_size {
-            IndentSize::Value(indent_width) => config.indent_width = indent_width,
+            IndentSize::Value(indent_width) => config.indent_width = Some(indent_width),
             IndentSize::UseTabWidth => {
                 if let Ok(TabWidth::Value(indent_width)) = properties.get::<TabWidth>() {
-                    config.indent_width = indent_width
+                    config.indent_width = Some(indent_width)
                 }
             }
         }
     }
     if let Ok(indent_style) = properties.get::<IndentStyle>() {
         match indent_style {
-            IndentStyle::Tabs => config.indent_type = IndentType::Tabs,
-            IndentStyle::Spaces => config.indent_type = IndentType::Spaces,
+            IndentStyle::Tabs => config.indent_type = Some(IndentType::Tabs),
+            IndentStyle::Spaces => config.indent_type = Some(IndentType::Spaces),
         }
     }
     if let Ok(max_line_length) = properties.get::<MaxLineLen>() {
         match max_line_length {
-            MaxLineLen::Value(column_width) => config.column_width = column_width,
-            MaxLineLen::Off => config.column_width = usize::MAX,
+            MaxLineLen::Value(column_width) => config.column_width = Some(column_width),
+            MaxLineLen::Off => config.column_width = Some(usize::MAX),
         }
     }
     if let Ok(quote_type) = properties.get::<QuoteTypeChoice>() {
         match quote_type {
-            QuoteTypeChoice::Double => config.quote_style = QuoteStyle::AutoPreferDouble,
-            QuoteTypeChoice::Single => config.quote_style = QuoteStyle::AutoPreferSingle,
-            QuoteTypeChoice::Auto => (),
+            QuoteTypeChoice::Double => config.quote_style = Some(QuoteStyle::AutoPreferDouble),
+            QuoteTypeChoice::Single => config.quote_style = Some(QuoteStyle::AutoPreferSingle),
+            QuoteTypeChoice::Auto => config.quote_style = Some(QuoteStyle::default()),
         }
     }
     if let Ok(call_parentheses) = properties.get::<CallParenthesesChoice>() {
         match call_parentheses {
-            CallParenthesesChoice::Always => config.call_parentheses = CallParenType::Always,
+            CallParenthesesChoice::Always => config.call_parentheses = Some(CallParenType::Always),
             CallParenthesesChoice::NoSingleString => {
-                config.call_parentheses = CallParenType::NoSingleString
+                config.call_parentheses = Some(CallParenType::NoSingleString)
             }
             CallParenthesesChoice::NoSingleTable => {
-                config.call_parentheses = CallParenType::NoSingleTable
+                config.call_parentheses = Some(CallParenType::NoSingleTable)
             }
-            CallParenthesesChoice::None => config.call_parentheses = CallParenType::None,
+            CallParenthesesChoice::None => config.call_parentheses = Some(CallParenType::None),
         }
     }
     if let Ok(space_after_function_names) = properties.get::<SpaceAfterFunctionNamesChoice>() {
         match space_after_function_names {
             SpaceAfterFunctionNamesChoice::Always => {
-                config.space_after_function_names = SpaceAfterFunctionNames::Always
+                config.space_after_function_names = Some(SpaceAfterFunctionNames::Always)
             }
             SpaceAfterFunctionNamesChoice::Definitions => {
-                config.space_after_function_names = SpaceAfterFunctionNames::Definitions
+                config.space_after_function_names = Some(SpaceAfterFunctionNames::Definitions)
             }
             SpaceAfterFunctionNamesChoice::Calls => {
-                config.space_after_function_names = SpaceAfterFunctionNames::Calls
+                config.space_after_function_names = Some(SpaceAfterFunctionNames::Calls)
             }
             SpaceAfterFunctionNamesChoice::Never => {
-                config.space_after_function_names = SpaceAfterFunctionNames::Never
+                config.space_after_function_names = Some(SpaceAfterFunctionNames::Never)
             }
         }
     }
     if let Ok(collapse_simple_statement) = properties.get::<CollapseSimpleStatementChoice>() {
         match collapse_simple_statement {
             CollapseSimpleStatementChoice::Never => {
-                config.collapse_simple_statement = CollapseSimpleStatement::Never
+                config.collapse_simple_statement = Some(CollapseSimpleStatement::Never)
             }
             CollapseSimpleStatementChoice::FunctionOnly => {
-                config.collapse_simple_statement = CollapseSimpleStatement::FunctionOnly
+                config.collapse_simple_statement = Some(CollapseSimpleStatement::FunctionOnly)
             }
             CollapseSimpleStatementChoice::ConditionalOnly => {
-                config.collapse_simple_statement = CollapseSimpleStatement::ConditionalOnly
+                config.collapse_simple_statement = Some(CollapseSimpleStatement::ConditionalOnly)
             }
             CollapseSimpleStatementChoice::Always => {
-                config.collapse_simple_statement = CollapseSimpleStatement::Always
+                config.collapse_simple_statement = Some(CollapseSimpleStatement::Always)
             }
         }
     }
     if let Ok(sort_requires) = properties.get::<SortRequiresChoice>() {
         match sort_requires {
-            SortRequiresChoice::True => config.sort_requires = SortRequiresConfig { enabled: true },
+            SortRequiresChoice::True => {
+                config.sort_requires = Some(SortRequiresConfig { enabled: true })
+            }
             SortRequiresChoice::False => {
-                config.sort_requires = SortRequiresConfig { enabled: false }
+                config.sort_requires = Some(SortRequiresConfig { enabled: false })
             }
         }
     }
@@ -209,7 +211,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("end_of_line", "CR");
         let config = Config::from(&properties);
-        assert_eq!(config.line_endings, LineEndings::Unix);
+        assert_eq!(config.line_endings, Some(LineEndings::Unix));
     }
 
     #[test]
@@ -217,7 +219,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("end_of_line", "lf");
         let config = Config::from(&properties);
-        assert_eq!(config.line_endings, LineEndings::Unix);
+        assert_eq!(config.line_endings, Some(LineEndings::Unix));
     }
 
     #[test]
@@ -225,7 +227,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("end_of_line", "CrLf");
         let config = Config::from(&properties);
-        assert_eq!(config.line_endings, LineEndings::Windows);
+        assert_eq!(config.line_endings, Some(LineEndings::Windows));
     }
 
     #[test]
@@ -233,7 +235,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("indent_size", "2");
         let config = Config::from(&properties);
-        assert_eq!(config.indent_width, 2);
+        assert_eq!(config.indent_width, Some(2));
     }
 
     #[test]
@@ -242,7 +244,7 @@ mod tests {
         properties.insert_raw_for_key("tab_width", "8");
         properties.insert_raw_for_key("indent_size", "tab");
         let config = Config::from(&properties);
-        assert_eq!(config.indent_width, 8);
+        assert_eq!(config.indent_width, Some(8));
     }
 
     #[test]
@@ -250,7 +252,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("indent_style", "space");
         let config = Config::from(&properties);
-        assert_eq!(config.indent_type, IndentType::Spaces);
+        assert_eq!(config.indent_type, Some(IndentType::Spaces));
     }
 
     #[test]
@@ -258,7 +260,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("indent_style", "Tab");
         let config = Config::from(&properties);
-        assert_eq!(config.indent_type, IndentType::Tabs);
+        assert_eq!(config.indent_type, Some(IndentType::Tabs));
     }
 
     #[test]
@@ -266,7 +268,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("max_line_length", "80");
         let config = Config::from(&properties);
-        assert_eq!(config.column_width, 80);
+        assert_eq!(config.column_width, Some(80));
     }
 
     #[test]
@@ -274,7 +276,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("max_line_length", "off");
         let config = Config::from(&properties);
-        assert_eq!(config.column_width, usize::MAX);
+        assert_eq!(config.column_width, Some(usize::MAX));
     }
 
     #[test]
@@ -282,7 +284,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("quote_type", "double");
         let config = Config::from(&properties);
-        assert_eq!(config.quote_style, QuoteStyle::AutoPreferDouble);
+        assert_eq!(config.quote_style, Some(QuoteStyle::AutoPreferDouble));
     }
 
     #[test]
@@ -290,7 +292,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("quote_type", "Single");
         let config = Config::from(&properties);
-        assert_eq!(config.quote_style, QuoteStyle::AutoPreferSingle);
+        assert_eq!(config.quote_style, Some(QuoteStyle::AutoPreferSingle));
     }
 
     #[test]
@@ -298,7 +300,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("quote_type", "auto");
         let config = Config::from(&properties);
-        assert_eq!(config.quote_style, QuoteStyle::AutoPreferDouble);
+        assert_eq!(config.quote_style, Some(QuoteStyle::AutoPreferDouble));
     }
 
     #[test]
@@ -306,7 +308,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("call_parentheses", "always");
         let config = Config::from(&properties);
-        assert_eq!(config.call_parentheses, CallParenType::Always);
+        assert_eq!(config.call_parentheses, Some(CallParenType::Always));
     }
 
     #[test]
@@ -314,7 +316,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("call_parentheses", "NoSingleString");
         let config = Config::from(&properties);
-        assert_eq!(config.call_parentheses, CallParenType::NoSingleString);
+        assert_eq!(config.call_parentheses, Some(CallParenType::NoSingleString));
     }
 
     #[test]
@@ -322,7 +324,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("call_parentheses", "NoSingleTable");
         let config = Config::from(&properties);
-        assert_eq!(config.call_parentheses, CallParenType::NoSingleTable);
+        assert_eq!(config.call_parentheses, Some(CallParenType::NoSingleTable));
     }
 
     #[test]
@@ -330,7 +332,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("call_parentheses", "None");
         let config = Config::from(&properties);
-        assert_eq!(config.call_parentheses, CallParenType::None);
+        assert_eq!(config.call_parentheses, Some(CallParenType::None));
     }
 
     #[test]
@@ -340,7 +342,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.space_after_function_names,
-            SpaceAfterFunctionNames::Always
+            Some(SpaceAfterFunctionNames::Always)
         );
     }
 
@@ -351,7 +353,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.space_after_function_names,
-            SpaceAfterFunctionNames::Definitions
+            Some(SpaceAfterFunctionNames::Definitions)
         );
     }
 
@@ -362,7 +364,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.space_after_function_names,
-            SpaceAfterFunctionNames::Calls
+            Some(SpaceAfterFunctionNames::Calls)
         );
     }
 
@@ -373,7 +375,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.space_after_function_names,
-            SpaceAfterFunctionNames::Never
+            Some(SpaceAfterFunctionNames::Never)
         );
     }
 
@@ -384,7 +386,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.collapse_simple_statement,
-            CollapseSimpleStatement::Never
+            Some(CollapseSimpleStatement::Never)
         );
     }
 
@@ -395,7 +397,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.collapse_simple_statement,
-            CollapseSimpleStatement::FunctionOnly
+            Some(CollapseSimpleStatement::FunctionOnly)
         );
     }
 
@@ -406,7 +408,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.collapse_simple_statement,
-            CollapseSimpleStatement::ConditionalOnly
+            Some(CollapseSimpleStatement::ConditionalOnly)
         );
     }
 
@@ -417,7 +419,7 @@ mod tests {
         let config = Config::from(&properties);
         assert_eq!(
             config.collapse_simple_statement,
-            CollapseSimpleStatement::Always
+            Some(CollapseSimpleStatement::Always)
         );
     }
 
@@ -426,7 +428,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("sort_requires", "true");
         let config = Config::from(&properties);
-        assert!(config.sort_requires.enabled);
+        assert!(config.sort_requires.is_some_and(|sr| sr.enabled));
     }
 
     #[test]
@@ -434,7 +436,7 @@ mod tests {
         let mut properties = Properties::new();
         properties.insert_raw_for_key("sort_requires", "false");
         let config = Config::from(&properties);
-        assert!(!config.sort_requires.enabled);
+        assert!(config.sort_requires.is_some_and(|sr| !sr.enabled));
     }
 
     #[test]
@@ -465,8 +467,8 @@ mod tests {
             default_config.collapse_simple_statement
         );
         assert_eq!(
-            config.sort_requires.enabled,
-            default_config.sort_requires.enabled
+            config.sort_requires.map(|sr| sr.enabled),
+            default_config.sort_requires.map(|sr| sr.enabled)
         );
     }
 }

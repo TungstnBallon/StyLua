@@ -47,18 +47,19 @@ macro_rules! fmt_symbol {
         $crate::formatters::general::format_symbol(
             $ctx,
             $token,
-            &TokenReference::symbol_specific_lua_version($x, $ctx.config().syntax.into()).unwrap(),
+            &TokenReference::symbol_specific_lua_version($x, $ctx.config().syntax().into())
+                .unwrap(),
             $shape,
         )
     };
 }
 
 fn get_quote_to_use(ctx: &Context, literal: &str) -> StringLiteralQuoteType {
-    match ctx.config().quote_style {
+    match ctx.config().quote_style() {
         QuoteStyle::ForceDouble => StringLiteralQuoteType::Double,
         QuoteStyle::ForceSingle => StringLiteralQuoteType::Single,
         _ => {
-            let preferred = match ctx.config().quote_style {
+            let preferred = match ctx.config().quote_style() {
                 QuoteStyle::AutoPreferDouble => StringLiteralQuoteType::Double,
                 QuoteStyle::AutoPreferSingle => StringLiteralQuoteType::Single,
                 _ => unreachable!("have other quote styles we haven't looked into yet"),
@@ -104,7 +105,7 @@ fn format_string_literal(
 ) -> TokenType {
     // CfxLua: if we have a backtick string, don't mess with it
     #[cfg(feature = "cfxlua")]
-    if ctx.config().syntax == LuaVersion::CfxLua
+    if ctx.config().syntax() == LuaVersion::CfxLua
         && matches!(quote_type, StringLiteralQuoteType::Backtick)
     {
         return TokenType::StringLiteral {
@@ -120,7 +121,7 @@ fn format_string_literal(
         // then converting LF to output
         let literal = literal
             .replace("\r\n", "\n")
-            .replace('\n', &line_ending_character(ctx.config().line_endings));
+            .replace('\n', &line_ending_character(ctx.config().line_endings()));
 
         TokenType::StringLiteral {
             literal: literal.into(),
@@ -255,7 +256,7 @@ pub fn format_token(
             // then converting LF to output
             let comment = comment
                 .replace("\r\n", "\n")
-                .replace('\n', &line_ending_character(ctx.config().line_endings));
+                .replace('\n', &line_ending_character(ctx.config().line_endings()));
 
             TokenType::MultiLineComment {
                 blocks: *blocks,

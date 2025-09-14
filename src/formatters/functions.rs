@@ -400,7 +400,7 @@ pub fn format_function_args(
             let (start_parens, end_parens) = parentheses.tokens();
 
             // Handle config where parentheses are omitted, and there is only one argument
-            if ctx.config().call_parentheses != CallParenType::Input
+            if ctx.config().call_parentheses() != CallParenType::Input
                 && (ctx.should_omit_string_parens() || ctx.should_omit_table_parens())
                 && arguments.len() == 1
                 && !matches!(call_next_node, FunctionCallNextNode::ObscureWithoutParens)
@@ -524,7 +524,7 @@ pub fn format_function_args(
         }
 
         FunctionArgs::String(token_reference) => {
-            if ctx.config().call_parentheses == CallParenType::Input
+            if ctx.config().call_parentheses() == CallParenType::Input
                 || (ctx.should_omit_string_parens()
                     && !matches!(call_next_node, FunctionCallNextNode::ObscureWithoutParens))
             {
@@ -563,7 +563,7 @@ pub fn format_function_args(
         }
 
         FunctionArgs::TableConstructor(table_constructor) => {
-            if ctx.config().call_parentheses == CallParenType::Input
+            if ctx.config().call_parentheses() == CallParenType::Input
                 || (ctx.should_omit_table_parens()
                     && !matches!(call_next_node, FunctionCallNextNode::ObscureWithoutParens))
             {
@@ -970,7 +970,7 @@ fn should_inline_prefix(ctx: &Context, prefix: &Prefix) -> bool {
     let prefix = strip_trivia(prefix).to_string();
 
     prefix.as_str().chars().next().unwrap().is_uppercase()
-        || prefix.len() <= ctx.config().indent_width
+        || prefix.len() <= ctx.config().indent_width()
 }
 
 fn suffix_contains_comments(suffix: &Suffix) -> bool {
